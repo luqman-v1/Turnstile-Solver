@@ -166,7 +166,7 @@ class TurnstileAPIServer:
         index, browser = await self.browser_pool.get()
 
         if self.proxy_support:
-            proxy_file_path = os.path.join(os.getcwd(), "proxies.txt")
+            proxy_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "proxies.txt")
 
             with open(proxy_file_path) as proxy_file:
                 proxies = [line.strip() for line in proxy_file if line.strip()]
@@ -197,10 +197,7 @@ class TurnstileAPIServer:
                 logger.debug(f"Browser {index}: Setting up page data and route")
 
             url_with_slash = url + "/" if not url.endswith("/") else url
-            turnstile_div = f'<div class="cf-turnstile" style="background: white;" data-sitekey="{sitekey}"' + (f' data-action="{action}"' if action else '') + (f' data-cdata="{cdata}"' if cdata else '') + '></div>'
-            page_data = self.HTML_TEMPLATE.replace("<!-- cf turnstile -->", turnstile_div)
 
-            await page.route(url_with_slash, lambda route: route.fulfill(body=page_data, status=200))
             await page.goto(url_with_slash)
 
             if self.debug:
